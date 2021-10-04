@@ -9,10 +9,18 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        ArrayList<String> data = new ArrayList<>();
+        List<String> data2 = Files.readAllLines(Paths.get("User.csv"));
+
+
         stage.setResizable(false);
         stage.setHeight(700);
         stage.setWidth(350);
@@ -136,7 +144,13 @@ public class HelloApplication extends Application {
                 gender, spinner, spinnerText, conditions, insc,
                 effacer, retour);
         Scene inscription = new Scene(signIn);
-        boutonConnect.setOnAction((ae) -> connectionError.textFillProperty().set(Color.RED));
+
+
+        boutonConnect.setOnAction((ae) -> {
+
+            connectionError.textFillProperty().set(Color.RED);
+
+        });
 
         boutonInscr.setOnAction((ae) -> {
             stage.setScene(inscription);
@@ -145,12 +159,20 @@ public class HelloApplication extends Application {
         insc.setOnAction((ae) -> {
             Label misPrenom = new Label("Prénom manquant");
             Label misPassword = new Label("Mot de passe manquant");
+            data2.add(prenom.getText() + ", " + nomFamille.getText() + ", " + user2.getText() + ", " + passConf.getText() +
+                    ", " + genre.getSelectedToggle().toString() + ", " + spinner.getValue());
+            try {
+                Files.write(Paths.get("User.csv"), data2);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (prenom.getText().equals("")) {
                 misPrenom.setTextFill(Color.RED);
                 misPrenom.setTranslateX(100);
                 misPrenom.setTranslateY(435);
                 signIn.getChildren().add(misPrenom);
             }
+            //else if ()
             if (password2.getText().equals("") || passConf.getText().equals("")) {
                 misPassword.setTextFill(Color.RED);
                 misPassword.setTranslateY(450);
