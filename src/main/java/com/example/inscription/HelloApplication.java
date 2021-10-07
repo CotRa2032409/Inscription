@@ -5,7 +5,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -92,12 +91,12 @@ public class HelloApplication extends Application {
         RadioButton based = new RadioButton("Based");
         RadioButton milf = new RadioButton("MILF");
         RadioButton epstein = new RadioButton("Epstein");
-        ToggleGroup genre = new ToggleGroup();
-        homme.setToggleGroup(genre);
-        femme.setToggleGroup(genre);
-        based.setToggleGroup(genre);
-        milf.setToggleGroup(genre);
-        epstein.setToggleGroup(genre);
+        ToggleGroup gender = new ToggleGroup();
+        homme.setToggleGroup(gender);
+        femme.setToggleGroup(gender);
+        based.setToggleGroup(gender);
+        milf.setToggleGroup(gender);
+        epstein.setToggleGroup(gender);
         homme.setTranslateX(80);
         homme.setTranslateY(255);
         femme.setTranslateX(170);
@@ -108,9 +107,9 @@ public class HelloApplication extends Application {
         milf.setTranslateY(270);
         epstein.setTranslateY(270);
         epstein.setTranslateX(170);
-        Label gender = new Label("Genre");
-        gender.setTranslateY(240);
-        gender.setTranslateX(100);
+        Label genderText = new Label("Genre");
+        genderText.setTranslateY(240);
+        genderText.setTranslateX(100);
         Spinner spinner = new Spinner(0, 5000, 18);
         spinner.setEditable(true);
         spinner.setTranslateX(100);
@@ -141,7 +140,7 @@ public class HelloApplication extends Application {
         Group signIn = new Group(prenom, prenomText, nomFamille, nomFamilleText,
                 user2, userText2, password2, passwordText2, passConf,
                 passConfText, homme, femme, based, milf, epstein,
-                gender, spinner, spinnerText, conditions, insc,
+                genderText, spinner, spinnerText, conditions, insc,
                 effacer, retour);
         Scene inscription = new Scene(signIn);
 
@@ -158,28 +157,69 @@ public class HelloApplication extends Application {
 
         insc.setOnAction((ae) -> {
             Label misPrenom = new Label("Prénom manquant");
+            Label misFamille = new Label("Nom de famille manquant");
+            Label misUser = new Label("Nom d'utilisateur manquant");
             Label misPassword = new Label("Mot de passe manquant");
-            data2.add(prenom.getText() + ", " + nomFamille.getText() + ", " + user2.getText() + ", " + passConf.getText() +
-                    ", " + genre.getSelectedToggle().toString() + ", " + spinner.getValue());
-            try {
-                Files.write(Paths.get("User.csv"), data2);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Label samePassword = new Label("La confirmation et le mot de passe ne sont pas pareil");
+            Label misGender = new Label("Choisissez un genre");
+            Label misCond = new Label("Veuillez accepter les conditions d'utilisations");
+            String genderDet = null;
+            if (homme.isSelected())
+                genderDet = "Homme";
+            if (femme.isSelected())
+                genderDet = "Femme";
+            if (based.isSelected())
+                genderDet = "Based";
+            if (milf.isSelected())
+                genderDet = "MILF";
+            if (epstein.isSelected())
+                genderDet = "Epstein";
+
             if (prenom.getText().equals("")) {
                 misPrenom.setTextFill(Color.RED);
                 misPrenom.setTranslateX(100);
                 misPrenom.setTranslateY(435);
                 signIn.getChildren().add(misPrenom);
-            }
-            //else if ()
-            if (password2.getText().equals("") || passConf.getText().equals("")) {
+            } else if (nomFamille.getText().isEmpty()) {
+                misFamille.setTextFill(Color.RED);
+                misFamille.setTranslateX(100);
+                misFamille.setTranslateY(450);
+                signIn.getChildren().add(misFamille);
+            } else if (user2.getText().isEmpty()) {
+                misUser.setTextFill(Color.RED);
+                misUser.setTranslateY(465);
+                misUser.setTranslateX(100);
+                signIn.getChildren().add(misUser);
+            } else if (password2.getText().isEmpty() || passConf.getText().isEmpty()) {
                 misPassword.setTextFill(Color.RED);
-                misPassword.setTranslateY(450);
+                misPassword.setTranslateY(480);
                 misPassword.setTranslateX(100);
                 signIn.getChildren().add(misPassword);
+            } else if (!password2.getText().equals(passConf.getText())) {
+                samePassword.setTextFill(Color.RED);
+                samePassword.setTranslateY(495);
+                samePassword.setTranslateX(50);
+                signIn.getChildren().add(samePassword);
+            } else if (gender.getSelectedToggle() == null) {
+                misGender.setTextFill(Color.RED);
+                misGender.setTranslateX(100);
+                misGender.setTranslateY(510);
+                signIn.getChildren().add(misGender);
+            } else if (!conditions.isSelected()) {
+                misCond.setTextFill(Color.RED);
+                misCond.setTranslateX(50);
+                misCond.setTranslateY(525);
+                signIn.getChildren().add(misCond);
+            } else {
+                data.add(prenom.getText() + ", " + nomFamille.getText() + ", " + user2.getText() + ", " + passConf.getText() +
+                        ", " + genderDet + ", " + spinner.getValue());
+                try {
+                    Files.write(Paths.get("User.csv"), data);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                stage.setScene(connexion);
             }
-
         });
 
         effacer.setOnAction((ae) -> {
@@ -188,12 +228,13 @@ public class HelloApplication extends Application {
             user2.clear();
             password2.clear();
             passConf.clear();
-            genre.selectToggle(milf);
+            gender.selectToggle(milf);
             spinner.getValueFactory().setValue(18);
             conditions.setSelected(false);
         });
 
         retour.setOnAction((ae) -> stage.setScene(connexion));
+
 
 
         //Idée : Fichier de conditions d'utilisations avec du texte random d'écrit dedans
