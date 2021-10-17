@@ -8,16 +8,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        ArrayList<String> data = new ArrayList<>();
-        List<String> data2 = Files.readAllLines(Paths.get("User.csv"));
+        List<String> data = Files.readAllLines(Paths.get("User.csv"));
 
 
         stage.setResizable(false);
@@ -146,8 +145,26 @@ public class HelloApplication extends Application {
 
 
         boutonConnect.setOnAction((ae) -> {
+            String test = user.getText();
+            if (!user.getText().isEmpty()) {
+                for (int i = 0; i < data.size(); i++) {
+                    String[] list = data.get(i).split(",");
 
-            connectionError.textFillProperty().set(Color.RED);
+                    if (list[i].equals(test)) {
+                        break;
+
+                    }
+                }
+
+            } else if (!password.getText().isEmpty()) {
+                for (int i = 0; i < data.size(); i++) {
+                    String[] list = data.get(i).split(",");
+                    if (!list[i].equals(password.getText().hashCode())) {
+                        connectionError.setTextFill(Color.RED);
+                    }
+                }
+            }
+
 
         });
 
@@ -211,8 +228,8 @@ public class HelloApplication extends Application {
                 misCond.setTranslateY(525);
                 signIn.getChildren().add(misCond);
             } else {
-                data.add(prenom.getText() + ", " + nomFamille.getText() + ", " + user2.getText() + ", " + passConf.getText() +
-                        ", " + genderDet + ", " + spinner.getValue());
+                data.add(prenom.getText() + "," + nomFamille.getText() + "," + user2.getText() + "," + passConf.getText().hashCode() +
+                        "," + genderDet + "," + spinner.getValue());
                 try {
                     Files.write(Paths.get("User.csv"), data);
                 } catch (IOException e) {
@@ -234,7 +251,6 @@ public class HelloApplication extends Application {
         });
 
         retour.setOnAction((ae) -> stage.setScene(connexion));
-
 
 
         //Idée : Fichier de conditions d'utilisations avec du texte random d'écrit dedans
